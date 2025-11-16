@@ -236,8 +236,15 @@ export class OllamaClient {
         try {
           return options.schema.parse(parsed);
         } catch (validationError) {
-          console.error('[OllamaClient] [ERROR] Ошибка валидации схемы:', validationError);
-          console.error('[OllamaClient] [ERROR] Полученные данные:', this.safeStringify(parsed));
+          // Специальная обработка для ZodError
+          if (validationError && typeof validationError === 'object' && 'issues' in validationError) {
+            console.error('[OllamaClient] [ERROR] Ошибка валидации схемы Zod:');
+            console.error('[OllamaClient] [ERROR] Проблемы:', JSON.stringify((validationError as any).issues, null, 2));
+          } else {
+            console.error('[OllamaClient] [ERROR] Ошибка валидации схемы:',
+              validationError instanceof Error ? validationError.message : String(validationError));
+          }
+          console.error('[OllamaClient] [ERROR] Полученные данные:', JSON.stringify(parsed, null, 2));
           throw validationError;
         }
       }
