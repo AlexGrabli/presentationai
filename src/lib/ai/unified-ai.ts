@@ -122,43 +122,29 @@ export class UnifiedAI {
       return this.cache.get(cacheKey);
     }
 
-    const prompt = `Ты профессиональный создатель презентаций. Создай структуру презентации на тему: "${topic}"
+    const prompt = `Create a presentation outline about: "${topic}"
 
-КРИТИЧЕСКИ ВАЖНО: Верни ТОЛЬКО валидный JSON, без дополнительного текста до или после JSON.
+You must respond with ONLY a valid JSON object, no other text before or after.
 
-Требования:
-- Количество слайдов: ${slideCount}
-- Первый слайд должен быть типа "title" (титульный)
-- Последний слайд должен быть типа "conclusion" (заключение)
-- Остальные слайды - "content" или "image" или "code"
-- Логичная структура и последовательность
-- Каждый слайд должен иметь понятный заголовок
+The JSON must have this exact structure with ${slideCount} slides:
 
-ФОРМАТ ОТВЕТА - верни ТОЛЬКО этот JSON (заполни реальными данными):
 {
-  "title": "Название презентации по теме",
-  "description": "Краткое описание презентации в 1-2 предложениях",
+  "title": "Presentation title about ${topic}",
+  "description": "Brief description in 1-2 sentences",
   "slides": [
-    {
-      "title": "Заголовок первого слайда",
-      "type": "title",
-      "content": "Краткое описание содержимого",
-      "notes": "Заметки для спикера"
-    },
-    {
-      "title": "Заголовок второго слайда",
-      "type": "content",
-      "content": "Краткое описание содержимого",
-      "notes": "Заметки для спикера"
-    }
+    {"title": "Title slide", "type": "title", "content": "Introduction", "notes": "Opening remarks"},
+    {"title": "Main topic 1", "type": "content", "content": "Key points", "notes": "Details"},
+    {"title": "Conclusion", "type": "conclusion", "content": "Summary", "notes": "Closing"}
   ]
 }
 
-ВАЖНО:
-- type может быть только: "title", "content", "image", "code", или "conclusion"
-- Все поля обязательны кроме notes
-- Создай ровно ${slideCount} слайдов
-- Верни ТОЛЬКО JSON, без markdown, без комментариев, без объяснений`;
+Rules:
+- Create exactly ${slideCount} slides
+- First slide must have type="title"
+- Last slide must have type="conclusion"
+- Other slides: type="content", "image", or "code"
+- All fields are required except notes
+- Return ONLY the JSON object, no markdown blocks, no explanations`;
 
     try {
       const characteristics = createOutlineTaskCharacteristics();
@@ -204,34 +190,32 @@ export class UnifiedAI {
       return this.cache.get(cacheKey);
     }
 
-    let prompt = `Создай детальный контент для слайда презентации.
+    let prompt = `Create slide content.
 
-Заголовок слайда: ${slideTitle}
-Тип слайда: ${slideType}`;
+Slide title: ${slideTitle}
+Slide type: ${slideType}`;
 
     if (context) {
-      prompt += `\nКонтекст презентации: ${context}`;
+      prompt += `\nContext: ${context}`;
     }
 
-    prompt += `\n\nКРИТИЧЕСКИ ВАЖНО: Верни ТОЛЬКО валидный JSON, без дополнительного текста.
+    prompt += `\n\nRespond with ONLY a valid JSON object:
 
-ФОРМАТ ОТВЕТА - верни ТОЛЬКО этот JSON (заполни реальными данными):
 {
   "title": "${slideTitle}",
-  "bullet_points": ["Первый ключевой пункт", "Второй ключевой пункт", "Третий ключевой пункт"],
-  "content": "Дополнительный текст если нужен (опционально)",
-  "code": "Код если тип слайда code (опционально)",
-  "image_prompt": "Описание изображения на английском для генератора (опционально)"
+  "bullet_points": ["Key point 1", "Key point 2", "Key point 3"],
+  "content": "Additional text (optional)",
+  "code": "Code example (optional)",
+  "image_prompt": "Image description in English (optional)"
 }
 
-ПРАВИЛА:
-- Для типа "content": создай 3-5 информативных bullet_points
-- Для типа "code": добавь рабочий пример кода в поле code
-- Для типа "image": создай image_prompt на английском языке
-- Для типа "title": только title и content с кратким введением
-- Для типа "conclusion": создай итоговые bullet_points
-- Все поля обязательны, кроме content, code и image_prompt
-- Верни ТОЛЬКО JSON, без markdown, без комментариев`;
+Rules for type "${slideType}":
+- "content": create 3-5 informative bullet_points
+- "code": add working code example in code field
+- "image": create image_prompt in English
+- "title": only title and brief content
+- "conclusion": create summary bullet_points
+Return ONLY the JSON object, no markdown, no explanations`;
 
     try {
       const taskType = slideType === 'code' ? TaskType.CODE_GENERATION : TaskType.SLIDE_CONTENT;

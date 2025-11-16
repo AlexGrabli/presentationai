@@ -211,9 +211,12 @@ export class OllamaClient {
       schema?: z.ZodSchema<T>;
     } = {}
   ): Promise<T> {
+    // НЕ используем format: 'json', так как многие модели (включая qwen3:14b)
+    // возвращают пустой объект {} с этим параметром.
+    // Вместо этого полагаемся на инструкции в промпте.
     const response = await this.generate(prompt, {
       ...options,
-      format: 'json',
+      // format: 'json', // УБРАНО - вызывает проблемы с qwen3:14b
     });
 
     // Логируем сырой ответ для отладки
