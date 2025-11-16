@@ -120,6 +120,25 @@ export async function exportToPPTX(
       });
     }
 
+    // Заглушка для изображения (если есть image_prompt, но нет реального изображения)
+    if (slideData.image_prompt && !slideData.bullet_points && !slideData.content && !slideData.code) {
+      const placeholderText = `[Картинка, демонстрирующая: ${slideData.image_prompt}]`;
+
+      slide.addText(placeholderText, {
+        x: 1.5,
+        y: 2.5,
+        w: 7,
+        h: 2.5,
+        fontSize: 18,
+        italic: true,
+        color: '6B7280',
+        fill: { color: 'F9FAFB' },
+        align: 'center',
+        valign: 'middle',
+        border: { type: 'dash', color: '9CA3AF', pt: 1 },
+      });
+    }
+
     // Номер слайда
     slide.addText(`${i + 1}`, {
       x: 9.2,

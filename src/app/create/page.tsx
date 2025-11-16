@@ -288,6 +288,14 @@ export default function CreatePresentationPage() {
                       {slide.code.substring(0, 100)}...
                     </pre>
                   )}
+
+                  {slide.image_prompt && !slide.bullet_points && !slide.content && !slide.code && (
+                    <div className="mt-2 p-3 bg-gray-50 border border-dashed border-gray-300 rounded text-center">
+                      <p className="text-sm text-gray-600 italic">
+                        [Картинка, демонстрирующая: {slide.image_prompt}]
+                      </p>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
