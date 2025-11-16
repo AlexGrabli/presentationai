@@ -26,10 +26,13 @@ export async function POST(request: Request) {
     // Возвращаем файл
     const filename = getPPTXFilename(outline.title)
 
+    // Кодируем имя файла для поддержки кириллицы в заголовках (RFC 5987)
+    const encodedFilename = encodeURIComponent(filename)
+
     return new NextResponse(pptxBuffer, {
       headers: {
         'Content-Type': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-        'Content-Disposition': `attachment; filename="${filename}"`,
+        'Content-Disposition': `attachment; filename="presentation.pptx"; filename*=UTF-8''${encodedFilename}`,
         'Content-Length': pptxBuffer.length.toString(),
       },
     })
