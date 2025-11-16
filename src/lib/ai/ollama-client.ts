@@ -383,22 +383,42 @@ export class OllamaClient {
 
   private logDebug(message: string, data?: any): void {
     if (process.env.LOG_LEVEL === 'debug') {
-      console.log(`[OllamaClient] [DEBUG] ${message}`, data || '');
+      console.log(`[OllamaClient] [DEBUG] ${message}`, this.safeStringify(data));
     }
   }
 
   private logInfo(message: string, data?: any): void {
     if (['debug', 'info'].includes(process.env.LOG_LEVEL || 'info')) {
-      console.log(`[OllamaClient] [INFO] ${message}`, data || '');
+      console.log(`[OllamaClient] [INFO] ${message}`, this.safeStringify(data));
     }
   }
 
   private logWarn(message: string, data?: any): void {
-    console.warn(`[OllamaClient] [WARN] ${message}`, data || '');
+    console.warn(`[OllamaClient] [WARN] ${message}`, this.safeStringify(data));
   }
 
   private logError(message: string, error: any): void {
-    console.error(`[OllamaClient] [ERROR] ${message}`, error);
+    console.error(`[OllamaClient] [ERROR] ${message}`);
+    if (error instanceof Error) {
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+    } else {
+      console.error('Error details:', this.safeStringify(error));
+    }
+  }
+
+  private safeStringify(obj: any): string {
+    if (obj === undefined || obj === null) {
+      return '';
+    }
+    if (typeof obj === 'string') {
+      return obj;
+    }
+    try {
+      return JSON.stringify(obj, null, 2);
+    } catch (err) {
+      return String(obj);
+    }
   }
 }
 

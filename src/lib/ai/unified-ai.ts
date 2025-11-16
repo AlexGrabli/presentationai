@@ -445,7 +445,13 @@ export class UnifiedAI {
   }
 
   private logError(message: string, error: any): void {
-    console.error(`[UnifiedAI] [ERROR] ${message}`, error);
+    console.error(`[UnifiedAI] [ERROR] ${message}`);
+    if (error instanceof Error) {
+      console.error('Error message:', error.message);
+      if (error.stack) console.error('Stack:', error.stack);
+    } else if (error) {
+      console.error('Error details:', String(error));
+    }
   }
 }
 
