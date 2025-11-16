@@ -207,17 +207,45 @@ export class OllamaClient {
       format: 'json',
     });
 
+    // Логируем сырой ответ для отладки
+    console.log('[OllamaClient] [DEBUG] Сырой ответ от модели:', response.substring(0, 500));
+
     try {
-      const parsed = JSON.parse(response);
+      // Пытаемся очистить ответ от markdown и лишнего текста
+      let cleanedResponse = response.trim();
+
+      // Удаляем markdown блоки кода если есть
+      if (cleanedResponse.startsWith('```json')) {
+        cleanedResponse = cleanedResponse.replace(/^```json\s*/i, '').replace(/\s*```\s*$/, '');
+      } else if (cleanedResponse.startsWith('```')) {
+        cleanedResponse = cleanedResponse.replace(/^```\s*/i, '').replace(/\s*```\s*$/, '');
+      }
+
+      // Ищем JSON объект в тексте
+      const jsonMatch = cleanedResponse.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        cleanedResponse = jsonMatch[0];
+      }
+
+      console.log('[OllamaClient] [DEBUG] Очищенный JSON:', cleanedResponse.substring(0, 500));
+
+      const parsed = JSON.parse(cleanedResponse);
 
       // Валидация через Zod схему если предоставлена
       if (options.schema) {
-        return options.schema.parse(parsed);
+        try {
+          return options.schema.parse(parsed);
+        } catch (validationError) {
+          console.error('[OllamaClient] [ERROR] Ошибка валидации схемы:', validationError);
+          console.error('[OllamaClient] [ERROR] Полученные данные:', this.safeStringify(parsed));
+          throw validationError;
+        }
       }
 
       return parsed as T;
     } catch (error) {
       this.logError('Ошибка парсинга JSON ответа', error);
+      console.error('[OllamaClient] [ERROR] Полный сырой ответ:', response);
       throw new Error(`Не удалось распарсить JSON: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
