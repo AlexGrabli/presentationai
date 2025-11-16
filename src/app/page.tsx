@@ -52,16 +52,16 @@ export default function HomePage() {
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center mt-12">
           <Link
+            href="/create"
+            className="px-8 py-4 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors text-center text-lg"
+          >
+            🎨 Создать презентацию
+          </Link>
+          <Link
             href="/test-ai"
             className="px-8 py-4 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors text-center"
           >
             Тестировать AI
-          </Link>
-          <Link
-            href="/monitor"
-            className="px-8 py-4 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors text-center"
-          >
-            Мониторинг GPU
           </Link>
           <a
             href="/README.local-ai.md"
