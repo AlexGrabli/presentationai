@@ -27,21 +27,35 @@ export default function CreatePresentationPage() {
     setSlides([])
 
     try {
+      console.log('[Client] Отправка запроса на генерацию outline:', { topic, slideCount })
+
       const response = await fetch('/api/generate-presentation', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ topic, slideCount }),
       })
 
-      const data = await response.json()
+      console.log('[Client] Получен ответ:', response.status, response.statusText)
 
       if (!response.ok) {
-        throw new Error(data.error || 'Ошибка генерации')
+        const errorData = await response.json()
+        console.error('[Client] Ошибка от API:', errorData)
+        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`)
+      }
+
+      const data = await response.json()
+      console.log('[Client] Данные получены:', data)
+
+      if (!data || !data.outline) {
+        throw new Error('Некорректный ответ от сервера: отсутствует outline')
       }
 
       setOutline(data.outline)
+      console.log('[Client] Outline установлен успешно')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Неизвестная ошибка')
+      console.error('[Client] Ошибка при генерации:', err)
+      const errorMessage = err instanceof Error ? err.message : 'Неизвестная ошибка'
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }
