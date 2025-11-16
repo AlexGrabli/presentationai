@@ -149,8 +149,12 @@ export class OllamaClient {
     // Определяем модель (из опций, по типу задачи или дефолтная)
     const model = options.model || this.getModelForTask(options.taskType || TaskType.GENERAL);
 
+    console.log('[OllamaClient] [GENERATE] Используется модель:', model, 'для задачи:', options.taskType);
+
     // Подготавливаем промпт (добавляем инструкции для Qwen3 если нужно)
     const processedPrompt = this.preparePrompt(prompt, model, options.qwenMode);
+
+    console.log('[OllamaClient] [GENERATE] Промпт (первые 500 символов):', processedPrompt.substring(0, 500));
 
     const requestConfig: OllamaRequestConfig = {
       model,
@@ -171,8 +175,13 @@ export class OllamaClient {
     try {
       const response = await this.sendRequest(requestConfig);
 
+      // ДЕБАГ: Логируем сырой ответ от Ollama
+      console.log('[OllamaClient] [GENERATE] Сырой ответ от Ollama:', response.response.substring(0, 1000));
+
       // Парсим ответ (извлекаем JSON если нужно, убираем thinking tags)
       const parsedResponse = this.parseResponse(response.response, options.format === 'json', options.qwenMode);
+
+      console.log('[OllamaClient] [GENERATE] После parseResponse:', parsedResponse.substring(0, 1000));
 
       const duration = Date.now() - startTime;
       this.logInfo('Запрос выполнен успешно', {
